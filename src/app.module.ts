@@ -5,6 +5,9 @@ import { join } from 'node:path';
 import { UsersModule } from './users/users.module';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { PrismaService } from './prisma.service';
+import { AuthResolver } from './auth/auth.resolver';
+import { AuthService } from './auth/auth.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -15,7 +18,8 @@ import { PrismaService } from './prisma.service';
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
     UsersModule,
+    AuthModule,
   ],
-  providers: [PrismaService],
+  providers: [PrismaService, AuthResolver, AuthService],
 })
 export class AppModule {}

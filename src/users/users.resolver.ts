@@ -13,6 +13,6 @@ export class UsersResolver {
 
   @Query((returns) => [User])
   async getUsers() {
-    return this.usersService.getUsers();
+    return this.usersService.getAllUsers();
   }
 }

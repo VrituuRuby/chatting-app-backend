@@ -28,11 +28,12 @@ model Chat {
 }
 
 model Message {
-  id         String   @id @default(uuid())
-  user       User     @relation(fields: [user_id], references: [id])
+  id         String    @id @default(uuid())
+  user       User      @relation(fields: [user_id], references: [id])
   user_id    String
-  chat       Chat     @relation(fields: [chat_id], references: [id])
+  chat       Chat      @relation(fields: [chat_id], references: [id])
   chat_id    String
-  created_at DateTime @default(now())
+  created_at DateTime  @default(now())
+  edited_at  DateTime?
   content    String
 }
