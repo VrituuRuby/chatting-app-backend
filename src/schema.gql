@@ -29,7 +29,7 @@ type Query {
 type Mutation {
   signIn(signInInput: SignInInput!): AuthDTO!
   createUser(createUserInput: CreateUserInput!): User!
-  updateUser(userId: String!, createUserInput: CreateUserInput!): User!
+  updateUser(updateUserInput: UpdateUserInput!): User!
   deleteUser: DeleteUserResponse!
 }
 
@@ -41,4 +41,9 @@ input SignInInput {
 input CreateUserInput {
   username: String!
   password: String!
+}
+
+input UpdateUserInput {
+  username: String
+  password: String
 }

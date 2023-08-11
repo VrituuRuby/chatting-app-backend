@@ -3,7 +3,6 @@ import { UsersService } from './users.service';
 import { PrismaService } from '../prisma.service';
 import { v4 as uuid } from 'uuid';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { rejects } from 'assert';
 
 describe('UsersService', () => {
   let service: UsersService;

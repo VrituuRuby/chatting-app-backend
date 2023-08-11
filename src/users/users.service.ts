@@ -12,8 +12,8 @@ import { DeleteUserResponse } from './models/DeleteUserResponse';
 interface UpdateUserDTO {
   id: string;
   data: {
-    username: string;
-    password: string;
+    username?: string;
+    password?: string;
   };
 }
 @Injectable()
@@ -32,13 +32,34 @@ export class UsersService {
   }
 
   async updateUser({ id, data }: UpdateUserDTO): Promise<User> {
-    const userExists = await this.prismaService.user.findFirst({
+    const { password, username } = data;
+    const userToUpdate = await this.prismaService.user.findFirst({
       where: { id },
     });
 
-    if (!userExists) throw new NotFoundException("User doesn't exists");
+    if (!userToUpdate) throw new NotFoundException("User doesn't exists");
 
-    return await this.prismaService.user.update({ where: { id }, data });
+    if (username) {
+      const existingUser = await this.prismaService.user.findUnique({
+        where: { username },
+      });
+
+      if (existingUser && existingUser.id !== id) {
+        throw new BadRequestException('Username is alredy in use');
+      }
+
+      userToUpdate.username = username;
+    }
+
+    if (data.password) {
+      const hashedPassword = await hash(data.password, 8);
+      userToUpdate.password = hashedPassword;
+    }
+
+    return await this.prismaService.user.update({
+      where: { id },
+      data: userToUpdate,
+    });
   }
 
   async getAllUsers(): Promise<User[]> {

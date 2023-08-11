@@ -7,6 +7,7 @@ import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { useUser } from './users.decorator';
 import { AuthenticatedUser } from './models/AuthenticatedUser';
+import { UpdateUserInput } from './models/UpdateUserInput';
 
 @Resolver((of) => User)
 export class UsersResolver {
@@ -21,11 +22,12 @@ export class UsersResolver {
     return this.usersService.getAllUsers();
   }
 
+  @UseGuards(AuthGuard)
   @Mutation((returns) => User)
   async updateUser(
-    @Args({ name: 'userId', type: () => String })
+    @useUser('id')
     userId: string,
-    @Args('createUserInput') data: CreateUserInput,
+    @Args('updateUserInput') data: UpdateUserInput,
   ) {
     return await this.usersService.updateUser({ id: userId, data });
   }
