@@ -7,6 +7,7 @@ import { User } from './models/user.model';
 import { PrismaService } from '../prisma.service';
 import { Prisma } from '@prisma/client';
 import { hash } from 'bcrypt';
+import { DeleteUserResponse } from './models/DeleteUserResponse';
 
 interface UpdateUserDTO {
   id: string;
@@ -50,9 +51,22 @@ export class UsersService {
     return userExists;
   }
 
-  async deleteUser(id: string) {
-    const userExists = this.prismaService.user.findFirst({ where: { id } });
-    if (!userExists) throw new NotFoundException("User does't exists");
-    await this.prismaService.user.delete({ where: { id } });
+  async deleteUser(id: string): Promise<DeleteUserResponse> {
+    try {
+      const userExists = await this.prismaService.user.findFirst({
+        where: { id },
+      });
+      if (!userExists) throw new NotFoundException("User doesn't exists");
+      await this.prismaService.user.delete({ where: { id } });
+      return {
+        success: true,
+        message: 'User deleted sucessfully',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
   }
 }

@@ -13,6 +13,11 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type DeleteUserResponse {
+  success: Boolean!
+  message: String!
+}
+
 type AuthDTO {
   access_token: String!
 }
@@ -24,6 +29,8 @@ type Query {
 type Mutation {
   signIn(signInInput: SignInInput!): AuthDTO!
   createUser(createUserInput: CreateUserInput!): User!
+  updateUser(userId: String!, createUserInput: CreateUserInput!): User!
+  deleteUser: DeleteUserResponse!
 }
 
 input SignInInput {
