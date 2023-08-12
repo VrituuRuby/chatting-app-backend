@@ -52,10 +52,40 @@ describe('ChatsService', () => {
       ],
     });
 
-    expect(await service.addUser({ usersIds, chatId: 'chat_uuid' }));
+    expect(
+      (await service.addUser({ usersIds, chatId: 'chat_uuid' })).users.length,
+    ).toBe(2);
   });
 
-  it.todo('should be able to create a new chat with users');
+  it('should be able to create a new chat with users', async () => {
+    const newChat = {
+      is_private: false,
+      usersIds: ['1', '2'],
+    };
+
+    prisma.chat.create = jest.fn().mockReturnValueOnce({
+      is_private: false,
+      id: 'chat-random-uuid',
+      users: [{ id: 'random-uuid', username: 'CreatorUser' }],
+    });
+
+    prisma.user.findUnique = jest.fn().mockReturnValueOnce(true);
+
+    prisma.chat.update = jest.fn().mockReturnValueOnce({
+      is_private: false,
+      id: 'chat-random-uuid',
+      users: [
+        { id: 'random-uuid', username: 'CreatorUser' },
+        { id: '1' },
+        { id: '2' },
+      ],
+    });
+    expect(
+      (await service.createChat({ userId: 'random-uuid', data: newChat })).users
+        .length,
+    ).toBe(3);
+  });
+
   it.todo(
     'should be able to send push notification when user is added to a new chat',
   );

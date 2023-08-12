@@ -8,7 +8,6 @@ import { PrismaService } from './prisma.service';
 import { AuthResolver } from './auth/auth.resolver';
 import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
-import { ChatModule } from './chat/chat.module';
 import { ChatsModule } from './chats/chats.module';
 
 @Module({
@@ -21,7 +20,6 @@ import { ChatsModule } from './chats/chats.module';
     }),
     UsersModule,
     AuthModule,
-    ChatModule,
     ChatsModule,
   ],
   providers: [PrismaService, AuthResolver, AuthService],
