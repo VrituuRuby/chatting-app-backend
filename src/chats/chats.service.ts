@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { Chat, Prisma } from '@prisma/client';
-import { DangerousChangeType } from 'graphql';
+import { Prisma } from '@prisma/client';
 
 interface CreateChatDTO {
   userId: string;
@@ -27,26 +26,14 @@ export class ChatsService {
     Prisma.ChatGetPayload<{ include: { users: true } }>
   > {
     const { is_private, usersIds } = data;
-    const newChat = await this.prismaService.chat.create({
-      data: {
-        is_private,
-        users: { connect: [{ id: userId }] },
-      },
-      include: {
-        users: true,
-      },
-    });
-
     if (usersIds) {
       const existingUsers = await this.sanitizeExistingUsers(usersIds);
 
-      return await this.prismaService.chat.update({
-        where: { id: newChat.id },
+      return await this.prismaService.chat.create({
         data: {
+          is_private,
           users: {
-            connect: existingUsers.map((userId) => ({
-              id: userId,
-            })),
+            connect: [{ id: userId }, ...existingUsers.map((id) => ({ id }))],
           },
         },
         include: {
@@ -55,7 +42,17 @@ export class ChatsService {
       });
     }
 
-    return newChat;
+    return await this.prismaService.chat.create({
+      data: {
+        is_private,
+        users: {
+          connect: { id: userId },
+        },
+      },
+      include: {
+        users: true,
+      },
+    });
   }
 
   async sanitizeExistingUsers(usersIds: string[]): Promise<string[]> {
@@ -63,18 +60,24 @@ export class ChatsService {
       const userExists = await this.prismaService.user.findUnique({
         where: { id: userId },
       });
-      if (!userExists) return;
-
+      if (!userExists) {
+        return;
+      }
       return userId;
     });
   }
 
-  async addUser({ chatId, usersIds }: AddUserDTO) {
+  async addUser({
+    chatId,
+    usersIds,
+  }: AddUserDTO): Promise<Prisma.ChatGetPayload<{ include: { users: true } }>> {
+    const sanitizedUsersIds = await this.sanitizeExistingUsers(usersIds);
+
     return await this.prismaService.chat.update({
       where: { id: chatId },
       data: {
         users: {
-          connect: usersIds.map((userId) => ({
+          connect: sanitizedUsersIds.map((userId) => ({
             id: userId,
           })),
         },

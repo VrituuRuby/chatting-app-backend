@@ -12,6 +12,7 @@ import { UpdateUserInput } from './models/UpdateUserInput';
 @Resolver((of) => User)
 export class UsersResolver {
   constructor(private usersService: UsersService) {}
+
   @Mutation((returns) => User)
   async createUser(@Args('createUserInput') data: CreateUserInput) {
     return this.usersService.createUser(data);
