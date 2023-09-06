@@ -11,10 +11,19 @@ interface CreateChatDTO {
 }
 
 interface AddUserDTO {
-  chatId: string;
-  usersIds: string[];
+  chat_id: string;
+  users_id: string[];
 }
 
+interface IChangeName {
+  chat_id: string;
+  name: string;
+}
+
+interface IRemoveUsers {
+  chat_id: string;
+  users_id: string[];
+}
 @Injectable()
 export class ChatsService {
   constructor(private prismaService: PrismaService) {}
@@ -60,14 +69,14 @@ export class ChatsService {
     });
   }
 
-  async addUser({
-    chatId,
-    usersIds,
+  async addUsers({
+    chat_id,
+    users_id,
   }: AddUserDTO): Promise<Prisma.ChatGetPayload<{ include: { users: true } }>> {
-    const sanitizedUsersIds = await this.sanitizeExistingUsers(usersIds);
+    const sanitizedUsersIds = await this.sanitizeExistingUsers(users_id);
 
     return await this.prismaService.chat.update({
-      where: { id: chatId },
+      where: { id: chat_id },
       data: {
         users: {
           connect: sanitizedUsersIds.map((userId) => ({
@@ -80,6 +89,33 @@ export class ChatsService {
       },
     });
   }
+
+  async removeUsers({ chat_id, users_id }: IRemoveUsers) {
+    const sanitizedUsers = await this.sanitizeExistingUsers(users_id);
+    return await this.prismaService.chat.update({
+      where: { id: chat_id },
+      data: {
+        users: {
+          disconnect: sanitizedUsers.map((id) => ({
+            id,
+          })),
+        },
+      },
+    });
+  }
+
+  async changeName({ chat_id, name }: IChangeName) {
+    const existingChat = await this.prismaService.chat.findUnique({
+      where: { id: chat_id },
+    });
+    if (!existingChat) throw new NotFoundException("Chat doesn't exists");
+
+    return await this.prismaService.chat.update({
+      where: { id: chat_id },
+      data: { name },
+    });
+  }
+
   async deleteChat(chat_id: string) {
     const existingChat = await this.prismaService.chat.findUnique({
       where: { id: chat_id },

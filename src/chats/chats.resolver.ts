@@ -44,6 +44,22 @@ export class ChatsResolver {
     return await this.chatsService.deleteChat(chat_id);
   }
 
+  @Mutation(() => Chat)
+  async addUsers(
+    @Args("users_id", { type: () => [String] }) users_id: string[],
+    @Args("chat_id") chat_id: string,
+  ) {
+    return await this.chatsService.addUsers({ chat_id, users_id });
+  }
+
+  @Mutation(() => Chat)
+  async removeUsers(
+    @Args("chat_id") chat_id: string,
+    @Args("users_id", { type: () => [String] }) users_id: string[],
+  ) {
+    return await this.chatsService.removeUsers({ chat_id, users_id });
+  }
+
   @ResolveField("users", (returns) => [User])
   async getUsers(@Parent() chat: Chat) {
     return this.usersService.getUsersByChatId(chat.id);

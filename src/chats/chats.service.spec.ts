@@ -57,7 +57,7 @@ describe("ChatsService", () => {
     });
 
     expect(
-      (await service.addUser({ usersIds, chatId: "chat_uuid" })).users.length,
+      (await service.addUsers({ usersIds, chatId: "chat_uuid" })).users.length,
     ).toBe(2);
   });
 
@@ -122,7 +122,7 @@ describe("ChatsService", () => {
 
     expect(
       (
-        await service.addUser({
+        await service.addUsers({
           chatId: "chat-id",
           usersIds: ["non-existing1", "non-existing2"],
         })

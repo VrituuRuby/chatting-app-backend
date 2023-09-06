@@ -52,6 +52,8 @@ type Mutation {
   signIn(signInInput: SignInInput!): AuthDTO!
   createChat(createChatInput: CreateChatInput!): Chat!
   deleteChat(chat_id: String!): Boolean!
+  addUsers(users_id: [String!]!, chat_id: String!): Chat!
+  removeUsers(chat_id: String!, users_id: [String!]!): Chat!
   createMessage: Message!
 }
 
