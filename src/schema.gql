@@ -6,6 +6,7 @@ type User {
   id: String!
   username: String!
   created_at: DateTime!
+  chats: [Chat!]!
 }
 
 """
@@ -18,24 +19,40 @@ type DeleteUserResponse {
   message: String!
 }
 
+type Chat {
+  name: String
+  id: String!
+  created_at: DateTime!
+  users: [User!]!
+  message: [Message!]!
+}
+
 type AuthDTO {
   access_token: String!
 }
 
+type Message {
+  id: String!
+  user_id: String!
+  chat_id: String!
+  created_at: DateTime!
+  edited_at: DateTime
+  content: String!
+}
+
 type Query {
   getUsers: [User!]!
+  listAllChats: [Chat!]!
 }
 
 type Mutation {
-  signIn(signInInput: SignInInput!): AuthDTO!
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   deleteUser: DeleteUserResponse!
-}
-
-input SignInInput {
-  username: String!
-  password: String!
+  signIn(signInInput: SignInInput!): AuthDTO!
+  createChat(createChatInput: CreateChatInput!): Chat!
+  deleteChat(chat_id: String!): Boolean!
+  createMessage: Message!
 }
 
 input CreateUserInput {
@@ -46,4 +63,14 @@ input CreateUserInput {
 input UpdateUserInput {
   username: String
   password: String
+}
+
+input SignInInput {
+  username: String!
+  password: String!
+}
+
+input CreateChatInput {
+  name: String
+  usersIds: [String!]
 }

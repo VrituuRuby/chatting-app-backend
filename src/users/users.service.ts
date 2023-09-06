@@ -2,12 +2,12 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from '@nestjs/common';
-import { User } from './models/user.model';
-import { PrismaService } from '../prisma.service';
-import { Prisma } from '@prisma/client';
-import { hash } from 'bcrypt';
-import { DeleteUserResponse } from './models/DeleteUserResponse';
+} from "@nestjs/common";
+import { User } from "./models/user.model";
+import { PrismaService } from "../prisma.service";
+import { Prisma } from "@prisma/client";
+import { hash } from "bcrypt";
+import { DeleteUserResponse } from "./models/DeleteUserResponse";
 
 interface UpdateUserDTO {
   id: string;
@@ -24,7 +24,7 @@ export class UsersService {
       where: { username: data.username },
     });
 
-    if (userExists) throw new BadRequestException('Username alredy in use');
+    if (userExists) throw new BadRequestException("Username alredy in use");
 
     return await this.prismaService.user.create({
       data: { ...data, password: await hash(data.password, 8) },
@@ -45,7 +45,7 @@ export class UsersService {
       });
 
       if (existingUser && existingUser.id !== id) {
-        throw new BadRequestException('Username is alredy in use');
+        throw new BadRequestException("Username is alredy in use");
       }
 
       userToUpdate.username = username;
@@ -81,7 +81,7 @@ export class UsersService {
       await this.prismaService.user.delete({ where: { id } });
       return {
         success: true,
-        message: 'User deleted sucessfully',
+        message: "User deleted sucessfully",
       };
     } catch (error) {
       return {
@@ -89,5 +89,15 @@ export class UsersService {
         message: error.message,
       };
     }
+  }
+
+  async getUsersByChatId(chat_id: string) {
+    const existingChat = await this.prismaService.chat.findUnique({
+      where: { id: chat_id },
+    });
+    if (!existingChat) throw new NotFoundException("Chat doesn't exisits");
+    return await this.prismaService.user.findMany({
+      where: { chats: { some: { id: chat_id } } },
+    });
   }
 }

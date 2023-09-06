@@ -1,11 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
-import { Prisma } from '@prisma/client';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "../prisma.service";
+import { Chat, Prisma, User } from "@prisma/client";
 
 interface CreateChatDTO {
   userId: string;
   data: {
-    is_private: boolean;
+    name?: string;
     usersIds?: string[];
   };
 }
@@ -19,38 +19,31 @@ interface AddUserDTO {
 export class ChatsService {
   constructor(private prismaService: PrismaService) {}
 
-  async createChat({
-    userId,
-    data,
-  }: CreateChatDTO): Promise<
-    Prisma.ChatGetPayload<{ include: { users: true } }>
-  > {
-    const { is_private, usersIds } = data;
+  async findAll(): Promise<Chat[]> {
+    return this.prismaService.chat.findMany();
+  }
+
+  async createChat({ userId, data }: CreateChatDTO): Promise<Chat> {
+    const { usersIds } = data;
     if (usersIds) {
       const existingUsers = await this.sanitizeExistingUsers(usersIds);
 
       return await this.prismaService.chat.create({
         data: {
-          is_private,
+          name: data.name,
           users: {
             connect: [{ id: userId }, ...existingUsers.map((id) => ({ id }))],
           },
-        },
-        include: {
-          users: true,
         },
       });
     }
 
     return await this.prismaService.chat.create({
       data: {
-        is_private,
+        name: data.name,
         users: {
           connect: { id: userId },
         },
-      },
-      include: {
-        users: true,
       },
     });
   }
@@ -85,6 +78,25 @@ export class ChatsService {
       include: {
         users: true,
       },
+    });
+  }
+  async deleteChat(chat_id: string) {
+    const existingChat = await this.prismaService.chat.findUnique({
+      where: { id: chat_id },
+    });
+    if (!existingChat) throw new NotFoundException("Chat doesn't exists");
+    await this.prismaService.chat.delete({ where: { id: chat_id } });
+    return true;
+  }
+
+  async getChatsByUserId(user_id: string): Promise<Chat[]> {
+    const existingUser = await this.prismaService.user.findUnique({
+      where: { id: user_id },
+    });
+    if (!existingUser) throw new NotFoundException("User not found");
+
+    return await this.prismaService.chat.findMany({
+      where: { users: { some: { id: user_id } } },
     });
   }
 }

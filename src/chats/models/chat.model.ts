@@ -1,9 +1,13 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
-export class AuthenticatedUser {
+export class Chat {
+  @Field({ nullable: true })
+  name?: string;
+
   @Field()
   id: string;
+
   @Field()
-  username: string;
+  created_at: Date;
 }

@@ -3,10 +3,10 @@ import {
   ExecutionContext,
   Injectable,
   UnauthorizedException,
-} from '@nestjs/common';
-import { GqlExecutionContext } from '@nestjs/graphql';
-import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
+} from "@nestjs/common";
+import { GqlExecutionContext } from "@nestjs/graphql";
+import { JwtService } from "@nestjs/jwt";
+import { Request } from "express";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -19,21 +19,21 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeaders(req);
 
     if (!token) {
-      throw new UnauthorizedException('Missing token');
+      throw new UnauthorizedException("Missing token");
     }
     try {
       const payload = await this.jwtService.verifyAsync(token);
-      req['user'] = {
+      req["user"] = {
         username: payload.username,
         id: payload.sub,
       };
     } catch {
-      throw new UnauthorizedException('Invalid token');
+      throw new UnauthorizedException("Invalid token");
     }
     return true;
   }
   private extractTokenFromHeaders(req: Request): string | undefined {
-    const [type, token] = req.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    const [type, token] = req.headers.authorization?.split(" ") ?? [];
+    return type === "Bearer" ? token : undefined;
   }
 }

@@ -21,8 +21,8 @@ model User {
 
 model Chat {
   id         String    @id @default(uuid())
+  name       String?
   created_at DateTime  @default(now())
-  is_private Boolean
   users      User[]
   Message    Message[]
 }

@@ -1,7 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
-import { compare } from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { PrismaService } from "../prisma.service";
+import { compare } from "bcrypt";
+import { JwtService } from "@nestjs/jwt";
 
 interface SignInDTO {
   username: string;
@@ -18,10 +18,10 @@ export class AuthService {
     const existingUser = await this.prismaService.user.findFirst({
       where: { username },
     });
-    if (!existingUser) throw new UnauthorizedException('Wrong credentials');
+    if (!existingUser) throw new UnauthorizedException("Wrong credentials");
 
     const confirmPassword = await compare(password, existingUser.password);
-    if (!confirmPassword) throw new UnauthorizedException('Wrong credentials');
+    if (!confirmPassword) throw new UnauthorizedException("Wrong credentials");
 
     const payload = { sub: existingUser.id, username: existingUser.username };
 

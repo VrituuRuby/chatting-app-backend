@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from './users.service';
-import { PrismaService } from '../prisma.service';
-import { v4 as uuid } from 'uuid';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from "@nestjs/testing";
+import { UsersService } from "./users.service";
+import { PrismaService } from "../prisma.service";
+import { v4 as uuid } from "uuid";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 
-describe('UsersService', () => {
+describe("UsersService", () => {
   let service: UsersService;
   let prisma: PrismaService;
 
@@ -20,14 +20,14 @@ describe('UsersService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  it('should be able to create a new user', async () => {
+  it("should be able to create a new user", async () => {
     const newUser = {
-      username: 'TestUser',
-      password: 'Password',
+      username: "TestUser",
+      password: "Password",
     };
 
     const result = {
@@ -41,12 +41,12 @@ describe('UsersService', () => {
     expect(await service.createUser(newUser)).toBe(result);
   });
 
-  it('should be able to update users info', async () => {
+  it("should be able to update users info", async () => {
     const userId = uuid();
 
     const updatedUser = {
-      username: 'updatedUser',
-      password: 'newPassword',
+      username: "updatedUser",
+      password: "newPassword",
     };
 
     const result = {
@@ -57,7 +57,7 @@ describe('UsersService', () => {
 
     prisma.user.findFirst = jest.fn().mockReturnValueOnce({
       id: userId,
-      username: 'OldUser',
+      username: "OldUser",
       created_at: new Date(),
     });
 
@@ -71,21 +71,21 @@ describe('UsersService', () => {
     ).toBe(result);
   });
 
-  it('should be able to list all existing users', async () => {
+  it("should be able to list all existing users", async () => {
     const users = [
       {
         id: uuid(),
-        username: 'TestUser',
+        username: "TestUser",
         created_at: new Date(),
       },
       {
         id: uuid(),
-        username: 'SecondTestUser',
+        username: "SecondTestUser",
         created_at: new Date(),
       },
       {
         id: uuid(),
-        username: 'ThirdTestUser',
+        username: "ThirdTestUser",
         created_at: new Date(),
       },
     ];
@@ -95,7 +95,7 @@ describe('UsersService', () => {
     expect(await service.getAllUsers()).toBe(users);
   });
 
-  it('should be able to delete an existing user', async () => {
+  it("should be able to delete an existing user", async () => {
     const userId = uuid();
 
     prisma.user.delete = jest.fn();
@@ -103,16 +103,16 @@ describe('UsersService', () => {
     expect(await service.deleteUser(userId)).toBeCalled;
   });
 
-  it('should NOT be able to create an user with an existing username', async () => {
+  it("should NOT be able to create an user with an existing username", async () => {
     const existingUser = {
       id: uuid(),
-      username: 'ExistingUser',
+      username: "ExistingUser",
       createdAt: new Date(),
     };
 
     const newUser = {
-      username: 'ExistingUser',
-      password: 'password',
+      username: "ExistingUser",
+      password: "password",
     };
 
     prisma.user.findFirst = jest.fn().mockReturnValueOnce(existingUser);
@@ -122,12 +122,12 @@ describe('UsersService', () => {
     );
   });
 
-  it('should NOT be able to update a non existing user', async () => {
+  it("should NOT be able to update a non existing user", async () => {
     const userId = uuid();
 
     const updatedUser = {
-      username: 'updatedUser',
-      password: 'newPassword',
+      username: "updatedUser",
+      password: "newPassword",
     };
 
     prisma.user.findFirst = jest.fn().mockReturnValueOnce(null);
@@ -137,7 +137,7 @@ describe('UsersService', () => {
     ).rejects.toThrow(NotFoundException);
   });
 
-  it('should NOT be able to list a non existing user', async () => {
+  it("should NOT be able to list a non existing user", async () => {
     const userId = uuid();
 
     prisma.user.findFirst = jest.fn().mockReturnValueOnce(null);
@@ -147,7 +147,7 @@ describe('UsersService', () => {
     );
   });
 
-  it('should NOT be able to delete a non existing user', async () => {
+  it("should NOT be able to delete a non existing user", async () => {
     const userId = uuid();
 
     prisma.user.findFirst = jest.fn().mockReturnValueOnce(null);
@@ -157,6 +157,6 @@ describe('UsersService', () => {
     );
   });
 
-  it.todo('should NOT be able to update user without user authentication');
-  it.todo('should NOT be able to delete user without user authentication');
+  it.todo("should NOT be able to update user without user authentication");
+  it.todo("should NOT be able to delete user without user authentication");
 });

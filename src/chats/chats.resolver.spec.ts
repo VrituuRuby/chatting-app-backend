@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ChatsResolver } from './chats.resolver';
+import { Test, TestingModule } from "@nestjs/testing";
+import { ChatsResolver } from "./chats.resolver";
 
-describe('ChatsResolver', () => {
+describe("ChatsResolver", () => {
   let resolver: ChatsResolver;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('ChatsResolver', () => {
     resolver = module.get<ChatsResolver>(ChatsResolver);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(resolver).toBeDefined();
   });
 });

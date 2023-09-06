@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
-import { PrismaService } from '../prisma.service';
-import { v4 as uuid } from 'uuid';
-import { hash } from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-import { UnauthorizedException } from '@nestjs/common';
+import { Test, TestingModule } from "@nestjs/testing";
+import { AuthService } from "./auth.service";
+import { PrismaService } from "../prisma.service";
+import { v4 as uuid } from "uuid";
+import { hash } from "bcrypt";
+import { JwtService } from "@nestjs/jwt";
+import { UnauthorizedException } from "@nestjs/common";
 
-describe('AuthService', () => {
+describe("AuthService", () => {
   let service: AuthService;
   let prisma: PrismaService;
 
@@ -23,44 +23,44 @@ describe('AuthService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  it('should be able to generate and return a JWT', async () => {
+  it("should be able to generate and return a JWT", async () => {
     prisma.user.findFirst = jest.fn().mockReturnValueOnce({
       id: uuid(),
-      username: 'ExistingUser',
-      password: await hash('Password', 8),
+      username: "ExistingUser",
+      password: await hash("Password", 8),
     });
 
     expect(
-      await service.signIn({ username: 'ExistingUser', password: 'Password' }),
-    ).toHaveProperty('access_token');
+      await service.signIn({ username: "ExistingUser", password: "Password" }),
+    ).toHaveProperty("access_token");
   });
-  it('should NOT be able to generate and return a JWT in case of wrong credential', async () => {
+  it("should NOT be able to generate and return a JWT in case of wrong credential", async () => {
     prisma.user.findFirst = jest.fn().mockReturnValueOnce(null);
 
     expect(
       async () =>
         await service.signIn({
-          username: 'NonExistingUser',
-          password: 'CorrectPassword',
+          username: "NonExistingUser",
+          password: "CorrectPassword",
         }),
     ).rejects.toThrow(UnauthorizedException);
 
     prisma.user.findFirst = jest.fn().mockReturnValueOnce({
       id: uuid(),
-      username: 'ExistingUser',
-      password: await hash('CorrectPassword', 8),
+      username: "ExistingUser",
+      password: await hash("CorrectPassword", 8),
       created_at: new Date(),
     });
 
     expect(
       async () =>
         await service.signIn({
-          username: 'ExistingUser',
-          password: 'IncorrectPassword',
+          username: "ExistingUser",
+          password: "IncorrectPassword",
         }),
     ).rejects.toThrow(UnauthorizedException);
   });
