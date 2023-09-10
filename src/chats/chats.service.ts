@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { Chat, Prisma, User } from "@prisma/client";
+import { withLatestFrom } from "rxjs";
 
 interface CreateChatDTO {
   userId: string;
@@ -30,6 +31,12 @@ export class ChatsService {
 
   async findAll(): Promise<Chat[]> {
     return this.prismaService.chat.findMany();
+  }
+
+  async getChatByID(id: string) {
+    const chat = await this.prismaService.chat.findUnique({ where: { id } });
+    if (!chat) throw new NotFoundException("Chat not found");
+    return chat;
   }
 
   async createChat({ userId, data }: CreateChatDTO): Promise<Chat> {

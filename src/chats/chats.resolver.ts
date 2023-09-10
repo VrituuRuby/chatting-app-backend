@@ -16,6 +16,7 @@ import { User } from "src/users/models/user.model";
 import { UsersService } from "src/users/users.service";
 import { MessagesService } from "src/messages/messages.service";
 import { Message } from "src/messages/model/message.model";
+import { UpdateChatNameInput } from "./models/UpdateChatNameInput";
 
 @Resolver((of) => Chat)
 export class ChatsResolver {
@@ -53,6 +54,16 @@ export class ChatsResolver {
   }
 
   @Mutation(() => Chat)
+  async updateName(@Args("data") data: UpdateChatNameInput) {
+    return await this.chatsService.changeName(data);
+  }
+
+  @Query(() => Chat)
+  async getChat(chat_id: string) {
+    return await this.chatsService.getChatByID(chat_id);
+  }
+
+  @Mutation(() => Chat)
   async removeUsers(
     @Args("chat_id") chat_id: string,
     @Args("users_id", { type: () => [String] }) users_id: string[],
@@ -65,7 +76,7 @@ export class ChatsResolver {
     return this.usersService.getUsersByChatId(chat.id);
   }
 
-  @ResolveField("message", (returns) => [Message])
+  @ResolveField("messages", (returns) => [Message])
   async getMessage(@Parent() chat: Chat) {
     return this.messagesService.getMessagesByChatId(chat.id);
   }

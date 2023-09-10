@@ -1,9 +1,9 @@
 import { Field, InputType } from "@nestjs/graphql";
 
 @InputType()
-export class EditMessageInput {
+export class UpdateChatNameInput {
   @Field()
-  message_id: string;
+  name: string;
   @Field()
-  content: string;
+  chat_id: string;
 }
