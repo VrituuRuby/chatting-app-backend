@@ -66,10 +66,7 @@ export class MessagesService {
     chat_id,
     content,
   }: CreateMessageDTO): Promise<Message> {
-    const user = await this.findUserInChat({ user_id, chat_id });
-
-    if (!user) throw new UnauthorizedException("User isn't a member of chat");
-
+    await this.findUserInChat({ user_id, chat_id });
     return await this.prismaService.message.create({
       data: { content, chat_id, user_id },
     });
