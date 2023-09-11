@@ -105,6 +105,8 @@ export class MessagesService {
     return {
       status: "ok",
       message: "Message deleted successfully",
+      message_id: message.id,
+      chat_id: message.chat_id,
     };
   }
 
@@ -112,7 +114,7 @@ export class MessagesService {
     const existingChat = await this.prismaService.chat.findUnique({
       where: { id: chat_id },
     });
-    if (!existingChat) throw new NotFoundException("Chat doesn't existis");
+    if (!existingChat) throw new NotFoundException("Chat doesn't exists");
 
     return await this.prismaService.message.findMany({ where: { chat_id } });
   }

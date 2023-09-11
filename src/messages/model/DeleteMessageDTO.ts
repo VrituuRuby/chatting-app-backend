@@ -4,6 +4,13 @@ import { Field, ObjectType } from "@nestjs/graphql";
 export default class DeleteMessageDTO {
   @Field()
   status: string;
+
   @Field()
   message: string;
+
+  @Field()
+  chat_id: string;
+
+  @Field()
+  message_id: string;
 }

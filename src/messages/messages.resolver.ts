@@ -4,6 +4,7 @@ import {
   Parent,
   ResolveField,
   Resolver,
+  Subscription,
 } from "@nestjs/graphql";
 import { Message } from "./model/message.model";
 import { MessagesService } from "./messages.service";
@@ -17,6 +18,7 @@ import DeleteMessageDTO from "./model/DeleteMessageDTO";
 import { UsersService } from "src/users/users.service";
 import { ChatsService } from "src/chats/chats.service";
 import { Chat } from "src/chats/models/chat.model";
+import { PubSub } from "graphql-subscriptions";
 
 @Resolver((of) => Message)
 export class MessagesResolver {
@@ -24,6 +26,7 @@ export class MessagesResolver {
     private messagesService: MessagesService,
     private usersService: UsersService,
     private chatsService: ChatsService,
+    private pubSub: PubSub,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -32,7 +35,24 @@ export class MessagesResolver {
     @Args("data") data: CreateMessageInput,
     @useUser() user: User,
   ) {
-    return this.messagesService.createMessage({ ...data, user_id: user.id });
+    const messageSended = await this.messagesService.createMessage({
+      ...data,
+      user_id: user.id,
+    });
+    this.pubSub.publish(`sended_${data.chat_id}`, {
+      messageSended,
+    });
+    return messageSended;
+  }
+
+  @UseGuards(AuthGuard)
+  @Subscription(() => Message)
+  async messageSended(@useUser("id") user_id: string) {
+    const chatsIds = (await this.chatsService.getChatsByUserId(user_id)).map(
+      (chat) => `sended_${chat.id}`,
+    );
+
+    return this.pubSub.asyncIterator(chatsIds);
   }
 
   @UseGuards(AuthGuard)
@@ -41,7 +61,21 @@ export class MessagesResolver {
     @Args("data") data: EditMessageInput,
     @useUser("id") user_id: string,
   ) {
-    return await this.messagesService.editMessage({ user_id, ...data });
+    const editedMessage = await this.messagesService.editMessage({
+      user_id,
+      ...data,
+    });
+    this.pubSub.publish(`edited_${editedMessage.chat_id}`, { editedMessage });
+    return editedMessage;
+  }
+
+  @UseGuards(AuthGuard)
+  @Subscription(() => Message)
+  async messageEdited(@useUser("id") user_id: string) {
+    const chatsIds = (await this.chatsService.getChatsByUserId(user_id)).map(
+      (chat) => `edited_${chat.id}`,
+    );
+    return this.pubSub.asyncIterator(chatsIds);
   }
 
   @UseGuards(AuthGuard)
@@ -50,7 +84,23 @@ export class MessagesResolver {
     @Args("message_id") message_id: string,
     @useUser("id") user_id: string,
   ) {
-    return await this.messagesService.deleteMessage({ message_id, user_id });
+    const messageDeleted = await this.messagesService.deleteMessage({
+      message_id,
+      user_id,
+    });
+    this.pubSub.publish(`deleted_${messageDeleted.chat_id}`, {
+      messageDeleted,
+    });
+    return messageDeleted;
+  }
+
+  @UseGuards(AuthGuard)
+  @Subscription(() => DeleteMessageDTO)
+  async messageDeleted(@useUser("id") user_id: string) {
+    const chatsIds = (await this.chatsService.getChatsByUserId(user_id)).map(
+      (chat) => `deleted_${chat.id}`,
+    );
+    return this.pubSub.asyncIterator(chatsIds);
   }
 
   @ResolveField("user", (returns) => User)

@@ -14,7 +14,8 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const ctx = GqlExecutionContext.create(context);
-    const req = ctx.getContext().req;
+    const reqCtx = ctx.getContext();
+    const req = reqCtx.req;
 
     const token = this.extractTokenFromHeaders(req);
 
@@ -32,8 +33,13 @@ export class AuthGuard implements CanActivate {
     }
     return true;
   }
-  private extractTokenFromHeaders(req: Request): string | undefined {
-    const [type, token] = req.headers.authorization?.split(" ") ?? [];
-    return type === "Bearer" ? token : undefined;
+  private extractTokenFromHeaders(req: any): string | undefined {
+    if (req.extra) {
+      const [type, token] = req.extra.access_token.split(" ");
+      return type === "Bearer" ? token : undefined;
+    } else {
+      const [type, token] = req.headers.authorization?.split(" ") ?? [];
+      return type === "Bearer" ? token : undefined;
+    }
   }
 }

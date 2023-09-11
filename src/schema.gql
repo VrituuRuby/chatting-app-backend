@@ -45,6 +45,8 @@ type Message {
 type DeleteMessageDTO {
   status: String!
   message: String!
+  chat_id: String!
+  message_id: String!
 }
 
 type Query {
@@ -101,4 +103,10 @@ input CreateMessageInput {
 input EditMessageInput {
   message_id: String!
   content: String!
+}
+
+type Subscription {
+  messageSended: Message!
+  messageEdited: Message!
+  messageDeleted: DeleteMessageDTO!
 }
